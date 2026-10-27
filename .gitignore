@@ -1,4 +1,6 @@
-
 /tmp/
 .idea/
 target/
+dist/
+arnost-save.dat
+arnost-save.dat.tmp
