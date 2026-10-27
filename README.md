@@ -1,3 +1,8 @@
 # Arnost: Legend of the Fallen Keep
 
-CLI Dungeon Crawler
+Build Status: PASSED. Target: Java 27.
+
+Run build:
+```bash
+mvn clean test package
+```
