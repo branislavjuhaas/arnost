@@ -462,14 +462,22 @@ public class GameEngine {
         if (strengthWasHidden) {
             currentTile.setMonsterStrengthHidden(false);
         }
+
+        if ("dragon".equals(monsterId)) {
+            if (!player.getInventory().contains("excalibur")) {
+                int strength = effectiveMonsterStrength(currentTile, monsterId);
+                String reveal = strengthWasHidden
+                    ? "Revealed STR " + strength + ". "
+                    : "";
+                return reveal + DRAGON_WEAPON_MESSAGE;
+            }
+            return handleDragonRoll(currentTile, "");
+        }
+
         int monsterStrength = effectiveMonsterStrength(currentTile, monsterId);
         String reveal = strengthWasHidden
             ? "Revealed STR " + monsterStrength + ". "
             : "";
-
-        if ("dragon".equals(monsterId) && !player.getInventory().contains("excalibur")) {
-            return reveal + DRAGON_WEAPON_MESSAGE;
-        }
 
         DiceRoller.DiceRoll roll = diceRoller.rollDetailed();
 
@@ -493,11 +501,6 @@ public class GameEngine {
             }
 
             activateDragonLairIfEligible();
-
-            if (monsterId.equals("dragon")) {
-                gameState.setGameWon(true);
-                return reveal + "Victory. Ashgorath is slain and the Crown Jewels are yours.";
-            }
 
             MonsterType monster = MonsterCatalog.get(monsterId);
             if (itemId == null) {
@@ -540,6 +543,67 @@ public class GameEngine {
             gameState.setPlayerDead(true);
         }
         return reveal + "Defeat. Lost 1 HP and pushed back." + venomMessage;
+    }
+
+    private String handleDragonRoll(Tile dragonTile, String reveal) {
+        int lives = dragonLives(dragonTile);
+        DiceRoller.DiceRoll roll = diceRoller.rollDetailed();
+
+        if (roll.total() < MonsterCatalog.DRAGON_MIN_ROLL) {
+            CombatResolver.Outcome outcome = roll.total() == MonsterCatalog.DRAGON_MIN_ROLL - 1
+                ? CombatResolver.Outcome.DRAW
+                : CombatResolver.Outcome.DEFEAT;
+            TUIRenderer.RollOutcomeStyle style = outcome == CombatResolver.Outcome.DRAW
+                ? TUIRenderer.RollOutcomeStyle.DRAW
+                : TUIRenderer.RollOutcomeStyle.LOSS;
+            renderer.renderRollEffect(player, getCurrentMap(), gameState.getCurrentLevel(),
+                roll.first(), roll.second(), style);
+            CombatResolver.applyOutcome(player, outcome);
+
+            String threshold = "A strike needs a 2d6 sum of "
+                + MonsterCatalog.DRAGON_MIN_ROLL + "+.";
+            if (outcome == CombatResolver.Outcome.DRAW) {
+                return reveal + "Draw. Ashgorath turns the blade aside; you are pushed back. "
+                    + threshold;
+            }
+            if (player.getHp() <= 0) {
+                gameState.setPlayerDead(true);
+                return reveal + "Ashgorath's claws find you. You fall. " + threshold;
+            }
+            return reveal + "Defeat. Ashgorath's claws cost you 1 HP; you are pushed back. "
+                + threshold;
+        }
+
+        int remaining = lives - 1;
+        dragonTile.setMonsterLives(remaining);
+
+        if (remaining > 0) {
+            renderer.renderRollEffect(player, getCurrentMap(), gameState.getCurrentLevel(),
+                roll.first(), roll.second(), TUIRenderer.RollOutcomeStyle.STRIKE);
+            String lifeWord = remaining == 1 ? "life" : "lives";
+            return reveal + "Excalibur bites deep! Ashgorath has "
+                + remaining + " " + lifeWord + " left.";
+        }
+
+        renderer.renderRollEffect(player, getCurrentMap(), gameState.getCurrentLevel(),
+            roll.first(), roll.second(), TUIRenderer.RollOutcomeStyle.WIN);
+        dragonTile.setCleared(true);
+        String itemId = MonsterCatalog.rollLoot("dragon", lootRandom);
+        if (itemId != null) {
+            dragonTile.setItemId(itemId);
+            player.getInventory().addItem(itemId);
+        }
+        gameState.setGameWon(true);
+        return reveal + "Victory. Ashgorath is slain and the Crown Jewels are yours.";
+    }
+
+    private static int dragonLives(Tile dragonTile) {
+        int lives = dragonTile.getMonsterLives();
+        if (lives <= 0) {
+            lives = MonsterCatalog.DRAGON_LIVES;
+            dragonTile.setMonsterLives(lives);
+        }
+        return lives;
     }
 
     private String saveGameCommand() {

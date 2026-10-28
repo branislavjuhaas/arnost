@@ -6,6 +6,7 @@ import com.arnost.game.controller.MapGenerator;
 import com.arnost.game.model.entity.Player;
 import com.arnost.game.model.map.DungeonMap;
 import com.arnost.game.model.map.Tile;
+import com.arnost.game.model.monster.MonsterCatalog;
 import com.arnost.game.model.state.GameState;
 import com.arnost.game.view.TUIRenderer;
 import org.junit.jupiter.api.Test;
@@ -492,6 +493,77 @@ class GameEngineRulesTest {
         assertTrue(map.getTile(3, 1).isDragonLair());
         assertNull(map.getTile(3, 1).getMonsterId(),
             "The dragon must remain dormant below +4 combat bonus.");
+    }
+
+    @Test
+    void dragonNeedsThreeStrikesOfNineOrMore() {
+        Player player = new Player("Sir Arnost", 5, 5);
+        player.setPosition(3, 1);
+        player.getInventory().addItem("excalibur");
+
+        DungeonMap map = MapGenerator.generateSeededMap(42L, 3);
+        MapGenerator.activateDragonLair(map);
+        GameState state = new GameState();
+        state.setCurrentLevel(3);
+
+        String output = runGame(player, map, state, new ScriptedDiceRoller(9, 9, 9),
+            "", "roll", "roll", "roll", "quit");
+
+        assertTrue(state.isGameWon(), "The third successful strike must slay the dragon.");
+        Tile dragonTile = map.getTile(3, 1);
+        assertTrue(dragonTile.isCleared(), "The lair must clear only after the third hit.");
+        assertEquals(0, dragonTile.getMonsterLives());
+        assertEquals(1, player.getInventory().getItems().stream()
+            .filter("crown_jewels"::equals).count(),
+            "The dragon must drop the Crown Jewels on the final hit.");
+        assertTrue(output.contains("LIVES 2/3"), "The first hit must leave two lives.");
+        assertTrue(output.contains("LIVES 1/3"), "The second hit must leave one life.");
+        assertTrue(output.contains("Ashgorath has 2 lives left."));
+        assertTrue(output.contains("Ashgorath has 1 life left."));
+    }
+
+    @Test
+    void dragonRollOfEightIsADrawAndDoesNotTakeALife() {
+        Player player = new Player("Sir Arnost", 5, 5);
+        player.setPosition(3, 1);
+        player.getInventory().addItem("excalibur");
+
+        DungeonMap map = MapGenerator.generateSeededMap(42L, 3);
+        MapGenerator.activateDragonLair(map);
+        GameState state = new GameState();
+        state.setCurrentLevel(3);
+
+        String output = runGame(player, map, state, new ScriptedDiceRoller(8),
+            "", "roll", "quit");
+
+        assertFalse(state.isGameWon(), "A roll of 8 must not damage the dragon.");
+        assertEquals(MonsterCatalog.DRAGON_LIVES, map.getTile(3, 1).getMonsterLives(),
+            "A roll of 8 must not remove a dragon life.");
+        assertEquals(5, player.getHp(), "A draw must not cost HP.");
+        assertTrue(output.contains("Draw. Ashgorath turns the blade aside"),
+            "A roll of 8 must be reported as a draw.");
+        assertTrue(output.contains("2d6 sum of 9+"));
+    }
+
+    @Test
+    void dragonRollBelowEightCostsOneHpAndDoesNotTakeALife() {
+        Player player = new Player("Sir Arnost", 5, 5);
+        player.setPosition(3, 1);
+        player.getInventory().addItem("excalibur");
+
+        DungeonMap map = MapGenerator.generateSeededMap(42L, 3);
+        MapGenerator.activateDragonLair(map);
+        GameState state = new GameState();
+        state.setCurrentLevel(3);
+
+        String output = runGame(player, map, state, new ScriptedDiceRoller(7),
+            "", "roll", "quit");
+
+        assertFalse(state.isGameWon(), "A low roll must not damage the dragon.");
+        assertEquals(MonsterCatalog.DRAGON_LIVES, map.getTile(3, 1).getMonsterLives());
+        assertEquals(4, player.getHp(), "A failed dragon strike must cost 1 HP.");
+        assertTrue(output.contains("Defeat. Ashgorath's claws cost you 1 HP"),
+            "A low dragon roll must report the failed strike.");
     }
 
     @Test

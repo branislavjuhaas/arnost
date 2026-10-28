@@ -43,7 +43,7 @@ public class TUIRenderer {
         Map.entry("guardian", "An animated suit of zweihänder-wielding steel."),
         Map.entry("wraith", "A screaming phantom clad in frost and shadow."),
         Map.entry("knight", "Slay him to unearth the holy blade Excalibur!"),
-        Map.entry("dragon", "The ancient wyrm snarls! Excalibur burns brightly.")
+        Map.entry("dragon", "Three lives. Each strike needs a 2d6 sum of 9+.")
     );
 
     private static final long ROLL_SETTLE_HOLD_MS = 1800;
@@ -60,6 +60,8 @@ public class TUIRenderer {
     public enum RollOutcomeStyle {
         WIN(ANSIColor.EMERALD, INVENTORY_BG, ANSIColor.BRIGHT_WHITE,
             "VICTORY", "The monster falls."),
+        STRIKE(ANSIColor.EMERALD, INVENTORY_BG, ANSIColor.BRIGHT_WHITE,
+            "STRIKE", "Ashgorath reels."),
         DRAW(ANSIColor.GOLD, ROLLING_BG, BLACK_TEXT,
             "DRAW", "Neither side yields."),
         LOSS(ANSIColor.CRIMSON, ENCOUNTER_BG, ANSIColor.BRIGHT_WHITE,
@@ -220,8 +222,9 @@ public class TUIRenderer {
         out.println(ANSIColor.EMERALD + "  GEAR: Dagger +1 | Short Sword +1 | Leather Armor +1 | Silver Ring +1" + ANSIColor.RESET);
         out.println(ANSIColor.EMERALD + "        Saber +2 | Halberd +3 | War Axe +3 | Runeblade +4 | Fireball +1" + ANSIColor.RESET);
         out.println(ANSIColor.EMERALD + "        Loot [I] tiles and defeat monsters. Stronger enemies carry better gear." + ANSIColor.RESET);
-        out.println(ANSIColor.CRIMSON + "  DRAGON'S LAIR: Level 3 at [3,1]. It awakens at +4 combat bonus;" + ANSIColor.RESET);
-        out.println(ANSIColor.CRIMSON + "                 only Excalibur can slay it." + ANSIColor.RESET);
+        out.println(ANSIColor.CRIMSON + "  DRAGON'S LAIR: Level 3 at [3,1]. It awakens at +4 combat bonus." + ANSIColor.RESET);
+        out.println(ANSIColor.CRIMSON + "                 Ashgorath has 3 lives; only Excalibur can wound it." + ANSIColor.RESET);
+        out.println(ANSIColor.CRIMSON + "                 Each strike needs a 2d6 sum of 9 or more." + ANSIColor.RESET);
         out.println(ANSIColor.GOLD + "  KEYS: Hidden guardians hold the Level 1 and Level 2 Dungeon Keys." + ANSIColor.RESET);
         out.println(ANSIColor.GOLD + "        Defeat them to descend." + ANSIColor.RESET);
         out.println(ANSIColor.GOLD + "  TOP BAR: Tracks the quest item for the current level." + ANSIColor.RESET);
@@ -273,8 +276,8 @@ public class TUIRenderer {
             "               ||||                            | | | |",
             "               ||||                            | | | |",
             "           ____||||____                      __|_|_|_|__",
-            "          |  EXCALIBUR |                    /  CROWN     \\",
-            "          |_____________|                  /   JEWELS     \\",
+            "          |             |                    /           \\",
+            "          |_____________|                  /             \\",
             "                                           |_______________|"
         };
         String[] colors = new String[art.length];
@@ -314,7 +317,7 @@ public class TUIRenderer {
             "                    `-'",
             "           _____________________",
             "          |                     |",
-            "          |        R.I.P.       |",
+            "          |                     |",
             "          |                     |",
             "          |_____________________|",
             "            /|/   /|/   /|/   /|/"
@@ -564,8 +567,11 @@ public class TUIRenderer {
                     : monster.baseStrength();
                 int strength = MonsterCatalog.effectiveStrength(
                     baseStrength, player.getInventory().getCombatBonus());
+                int dragonLives = "dragon".equals(monster.id())
+                    ? currentTile.getMonsterLives()
+                    : 0;
                 return buildMonsterPanel(player, monster, strength,
-                    currentTile.isMonsterStrengthHidden());
+                    currentTile.isMonsterStrengthHidden(), dragonLives);
             }
         }
 
@@ -596,7 +602,7 @@ public class TUIRenderer {
     }
 
     private SidePanel buildMonsterPanel(Player player, MonsterType monster, int strength,
-                                        boolean strengthHidden) {
+                                        boolean strengthHidden, int dragonLives) {
         List<String> lines = new ArrayList<>();
         for (String artLine : monster.art()) {
             lines.add(centerVisible(monster.color() + artLine + ANSIColor.RESET, PANEL_CONTENT_WIDTH));
@@ -607,8 +613,16 @@ public class TUIRenderer {
         String venom = MonsterCatalog.isVenomous(monster.id())
             ? "  " + ANSIColor.LAVA + "VENOM" + ANSIColor.RESET
             : "";
+        String vitals;
+        if ("dragon".equals(monster.id())) {
+            int lives = dragonLives > 0 ? dragonLives : MonsterCatalog.DRAGON_LIVES;
+            vitals = ANSIColor.CRIMSON + "LIVES " + lives + "/"
+                + MonsterCatalog.DRAGON_LIVES + ANSIColor.RESET;
+        } else {
+            vitals = strengthColor + "STR " + strengthText + ANSIColor.RESET;
+        }
         String nameAndStrength = ANSIColor.BRIGHT_WHITE + monster.name() + ANSIColor.RESET +
-            "  " + strengthColor + "STR " + strengthText + ANSIColor.RESET + venom;
+            "  " + vitals + venom;
         lines.add(centerVisible(nameAndStrength, PANEL_CONTENT_WIDTH));
 
         String lore = MONSTER_LORE.get(monster.id());
@@ -744,6 +758,7 @@ public class TUIRenderer {
             PANEL_CONTENT_WIDTH));
         if (player.getInventory().contains("excalibur")) {
             lines.add(" Excalibur burns in your hand.");
+            lines.add(" 3 lives. Each strike needs 9+.");
             lines.add(" Type 'roll' to strike.");
         } else if (player.getInventory().getCombatBonus() >= 4) {
             lines.add(" The dragon's eyes open.");

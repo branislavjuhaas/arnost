@@ -109,6 +109,26 @@ class SaveLoadTest {
     }
 
     @Test
+    void saveFilePreservesRemainingDragonLives() throws Exception {
+        Path savePath = tempDir.resolve("dragon-lives-save.dat");
+        SaveManager saves = new SaveManager(savePath);
+
+        DungeonMap levelThree = new DungeonMap();
+        Tile dragon = levelThree.getTile(3, 1);
+        dragon.setType("DRAGON_LAIR");
+        dragon.setMonsterId("dragon");
+        dragon.setMonsterStrength(37);
+        dragon.setMonsterLives(1);
+        DungeonMap[] levels = {new DungeonMap(), new DungeonMap(), levelThree};
+
+        saves.save(new GameSave(7L, new Player("Sir Arnost", 3, 5), levels, new GameState()));
+
+        GameSave loaded = saves.load().orElseThrow();
+        assertEquals(1, loaded.levels()[2].getTile(3, 1).getMonsterLives(),
+            "The dragon's remaining lives must survive a save and load.");
+    }
+
+    @Test
     void saveFilePreservesConcealedMonsterStrength() throws Exception {
         Path savePath = tempDir.resolve("hidden-strength-save.dat");
         SaveManager saves = new SaveManager(savePath);

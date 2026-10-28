@@ -9,6 +9,11 @@ import java.util.Random;
 import java.util.Set;
 
 public final class MonsterCatalog {
+    // Ashgorath ignores the normal strength comparison: he has three lives,
+    // and each successful strike requires a 2d6 sum of 9 or more.
+    public static final int DRAGON_LIVES = 3;
+    public static final int DRAGON_MIN_ROLL = 9;
+
     private static final List<String> SPAWNABLE_IDS =
         List.of("rat", "spider", "venom_spider", "mummy", "plague_mummy",
             "guardian", "wraith");

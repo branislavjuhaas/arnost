@@ -53,7 +53,7 @@ class DefeatAndRestartTest {
         assertEquals(1, output.lines().filter(line -> line.contains("PROLOGUE")).count(),
             "Restarting must not replay the prologue cutscene.");
         assertTrue(output.contains("YOU HAVE FALLEN"));
-        assertTrue(output.contains("R.I.P."), "Defeat must render the ASCII tombstone screen.");
+        assertFalse(output.contains("R.I.P."), "The ASCII tombstone must contain no text.");
         assertTrue(output.contains("[R] Restart the Keep"));
         assertFalse(state.isPlayerDead(), "Restart must clear the defeated state.");
         assertFalse(state.isGameWon());

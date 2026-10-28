@@ -119,6 +119,7 @@ public final class MapGenerator {
         lair.setType("DRAGON_LAIR");
         lair.setMonsterId("dragon");
         lair.setMonsterStrength(MonsterCatalog.strengthForLevel("dragon", 3));
+        lair.setMonsterLives(MonsterCatalog.DRAGON_LIVES);
         lair.setMonsterStrengthHidden(false);
         lair.setItemId(null);
         lair.setHasPotion(false);

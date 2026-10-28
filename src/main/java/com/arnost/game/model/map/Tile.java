@@ -13,6 +13,7 @@ public class Tile implements Serializable {
     private String monsterId;
     private int monsterStrength;
     private boolean monsterStrengthHidden;
+    private int monsterLives;
     private String itemId;
 
     private boolean hasPotion;
@@ -44,6 +45,7 @@ public class Tile implements Serializable {
         this.monsterId = monsterId;
         this.monsterStrength = 0;
         this.monsterStrengthHidden = false;
+        this.monsterLives = 0;
     }
 
     public int getMonsterStrength() { return monsterStrength; }
@@ -52,6 +54,11 @@ public class Tile implements Serializable {
     public boolean isMonsterStrengthHidden() { return monsterStrengthHidden; }
     public void setMonsterStrengthHidden(boolean monsterStrengthHidden) {
         this.monsterStrengthHidden = monsterStrengthHidden;
+    }
+
+    public int getMonsterLives() { return monsterLives; }
+    public void setMonsterLives(int monsterLives) {
+        this.monsterLives = Math.max(0, monsterLives);
     }
 
     public String getItemId() { return itemId; }
@@ -81,6 +88,7 @@ public class Tile implements Serializable {
         this.monsterId = null;
         this.monsterStrength = 0;
         this.monsterStrengthHidden = false;
+        this.monsterLives = 0;
         this.cleared = false;
     }
 

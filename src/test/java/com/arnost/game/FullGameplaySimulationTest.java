@@ -56,6 +56,8 @@ class FullGameplaySimulationTest {
             "e", "roll", "w",
             "n",
             "roll",
+            "roll",
+            "roll",
             "quit"
         ) + "\n";
 

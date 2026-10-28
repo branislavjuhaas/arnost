@@ -98,8 +98,11 @@ class MapAndRendererTest {
         DungeonMap awakened = MapGenerator.generateSeededMap(12345L, 3, 4);
         assertEquals("dragon", awakened.getTile(3, 1).getMonsterId());
         assertEquals(37, awakened.getTile(3, 1).getMonsterStrength());
+        assertEquals(MonsterCatalog.DRAGON_LIVES,
+            awakened.getTile(3, 1).getMonsterLives(),
+            "The dragon must begin with three lives.");
         assertFalse(awakened.getTile(3, 1).isMonsterStrengthHidden(),
-            "The dragon's strength must remain visible.");
+            "The dragon's lives must remain visible.");
     }
 
     @Test
@@ -493,7 +496,7 @@ class MapAndRendererTest {
             {"guardian", "27", "An animated suit of zweihänder-wielding steel.", "Iron Guardian"},
             {"wraith", "31", "A screaming phantom clad in frost and shadow.", "Barrow Wraith"},
             {"knight", "33", "Slay him to unearth the holy blade Excalibur!", "Knight Guardian"},
-            {"dragon", "37", "The ancient wyrm snarls! Excalibur burns brightly.",
+            {"dragon", "37", "Three lives. Each strike needs a 2d6 sum of 9+.",
                 "Ashgorath the Dragon"}
         };
 
@@ -519,6 +522,38 @@ class MapAndRendererTest {
             assertTrue(output.contains(monster[2]),
                 "The inspect pane must show the lore for " + monster[3] + ".");
         }
+    }
+
+    @Test
+    void dragonPanelShowsRemainingLivesAndTheNinePlusRule() {
+        DungeonMap map = new DungeonMap();
+        Tile dragonTile = map.getTile(1, 1);
+        dragonTile.setExplored(true);
+        dragonTile.setType("DRAGON_LAIR");
+        dragonTile.setMonsterId("dragon");
+        dragonTile.setMonsterStrength(37);
+        dragonTile.setMonsterLives(MonsterCatalog.DRAGON_LIVES);
+        map.setDragonLairPosition(1, 1);
+
+        Player player = new Player("Sir Arnost", 5, 5);
+        player.setPosition(1, 1);
+        ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
+        TUIRenderer renderer = new TUIRenderer(
+            new PrintStream(outputBuffer, true, StandardCharsets.UTF_8), false);
+
+        renderer.render(player, map, "Face the dragon");
+        String visibleOutput = stripAnsi(outputBuffer.toString(StandardCharsets.UTF_8));
+        assertTrue(visibleOutput.contains("LIVES 3/3"),
+            "The dragon panel must show all three lives.");
+        assertTrue(visibleOutput.contains("sum of 9+"),
+            "The dragon panel must explain that a strike needs a 2d6 sum of 9+.");
+
+        dragonTile.setMonsterLives(1);
+        outputBuffer.reset();
+        renderer.render(player, map, "The dragon reels");
+        String woundedOutput = stripAnsi(outputBuffer.toString(StandardCharsets.UTF_8));
+        assertTrue(woundedOutput.contains("LIVES 1/3"),
+            "The dragon panel must show the remaining lives.");
     }
 
     @Test
@@ -554,6 +589,10 @@ class MapAndRendererTest {
             "Victory art must not label the hero.");
         assertFalse(victoryOutput.contains("ANCIENT"),
             "Victory art must not label the dragon as an ancient wyrm.");
+        assertFalse(victoryOutput.contains("|  EXCALIBUR |"),
+            "Victory art must not contain a text label inside the sword.");
+        assertFalse(victoryOutput.contains("CROWN     \\"),
+            "Victory art must not contain a text label inside the crown.");
         assertTrue(victoryOutput.contains("VICTORY - ASHGORATH IS SLAIN"));
         assertTrue(victoryOutput.contains("EPILOGUE - THE FALLEN KEEP IS FREE"),
             "The victory screen must present the post-win story as an epilogue.");
@@ -567,6 +606,8 @@ class MapAndRendererTest {
         String defeatOutput = outputBuffer.toString(StandardCharsets.UTF_8);
         assertFalse(defeatOutput.contains("SIR ARNOST"),
             "Defeat art must not label the hero.");
+        assertFalse(defeatOutput.contains("R.I.P."),
+            "Defeat art must not contain text inside the tombstone.");
         assertTrue(defeatOutput.contains("ANOTHER HERO HAS FALLEN"));
     }
 

@@ -62,6 +62,10 @@ class HelpCommandTest {
         assertTrue(output.contains("HOW TO PLAY"), "Help screen must be rendered.");
         assertTrue(output.contains("go north"), "Help screen must list movement commands.");
         assertTrue(output.contains("2d6"), "Help screen must explain the combat roll.");
+        assertTrue(output.contains("Ashgorath has 3 lives"),
+            "Help screen must explain the dragon's three lives.");
+        assertTrue(output.contains("2d6 sum of 9 or more"),
+            "Help screen must explain the dragon's strike threshold.");
         assertTrue(output.contains("Type 'help' for instructions."), "Game screen must advertise the help command.");
         assertEquals(5, player.getY(), "The game must continue accepting commands after help is closed.");
     }
