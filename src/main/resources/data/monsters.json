@@ -1,1 +1,261 @@
-[{"id":"rat","strength":5},{"id":"dragon","strength":15}]
+{
+  "dragonLives": 3,
+  "dragonMinRoll": 9,
+  "fallbackBaseStrength": 5,
+  "venomDamage": 1,
+  "spawnableIds": [
+    "rat",
+    "spider",
+    "venom_spider",
+    "mummy",
+    "plague_mummy",
+    "guardian",
+    "wraith"
+  ],
+  "venomousIds": [
+    "venom_spider",
+    "plague_mummy"
+  ],
+  "levelIds": {
+    "1": ["rat", "spider", "warden"],
+    "2": ["spider", "venom_spider", "mummy", "guardian", "mummy_lord"],
+    "3": ["mummy", "plague_mummy", "guardian", "wraith", "knight"]
+  },
+  "randomSpawnIds": {
+    "1": ["rat", "spider"],
+    "2": ["spider", "venom_spider", "mummy", "guardian"],
+    "3": ["mummy", "plague_mummy", "guardian", "wraith"]
+  },
+  "fixedPlacements": {
+    "1": [
+      {"x": 3, "y": 5, "monsterId": "rat"},
+      {"x": 3, "y": 4, "monsterId": "spider"},
+      {"x": 4, "y": 3, "monsterId": "warden"}
+    ],
+    "2": [
+      {"x": 3, "y": 5, "monsterId": "venom_spider"},
+      {"x": 3, "y": 4, "monsterId": "mummy"},
+      {"x": 4, "y": 3, "monsterId": "mummy_lord"}
+    ],
+    "3": [
+      {"x": 3, "y": 5, "monsterId": "plague_mummy"},
+      {"x": 3, "y": 4, "monsterId": "mummy"},
+      {"x": 4, "y": 2, "monsterId": "knight"}
+    ]
+  },
+  "levelStrengths": {
+    "1": {
+      "rat": 6,
+      "spider": 8,
+      "warden": 10
+    },
+    "2": {
+      "spider": 13,
+      "venom_spider": 15,
+      "mummy": 18,
+      "guardian": 21,
+      "mummy_lord": 22
+    },
+    "3": {
+      "mummy": 23,
+      "plague_mummy": 25,
+      "guardian": 27,
+      "wraith": 31,
+      "knight": 33,
+      "dragon": 37
+    }
+  },
+  "monsters": [
+    {
+      "id": "rat",
+      "name": "Giant Rat",
+      "baseStrength": 6,
+      "strengthVariance": 0,
+      "dropItemId": "dagger",
+      "color": "GOLD",
+      "art": [
+        "  /\\_/\\  ",
+        " ( o.o ) ",
+        "  > ^ <  "
+      ]
+    },
+    {
+      "id": "spider",
+      "name": "Cave Spider",
+      "baseStrength": 8,
+      "strengthVariance": 0,
+      "dropItemId": "short_sword",
+      "color": "PURPLE",
+      "art": [
+        "  /\\ /\\  ",
+        " <  o  > ",
+        "  /   \\  "
+      ]
+    },
+    {
+      "id": "venom_spider",
+      "name": "Venom Spider",
+      "baseStrength": 15,
+      "strengthVariance": 0,
+      "dropItemId": "short_sword",
+      "color": "EMERALD",
+      "art": [
+        "  /\\ /\\  ",
+        " <  V  > ",
+        "  /   \\  "
+      ],
+      "lore": "Chitinous fangs drip with green bile."
+    },
+    {
+      "id": "mummy",
+      "name": "Restless Mummy",
+      "baseStrength": 18,
+      "strengthVariance": 0,
+      "dropItemId": "saber",
+      "color": "BONE",
+      "art": [
+        "  _____  ",
+        " / o o \\ ",
+        " \\_____/ "
+      ]
+    },
+    {
+      "id": "plague_mummy",
+      "name": "Plague Mummy",
+      "baseStrength": 25,
+      "strengthVariance": 0,
+      "dropItemId": "saber",
+      "color": "LAVA",
+      "art": [
+        "  _____  ",
+        " / x x \\ ",
+        " \\__V__/ "
+      ],
+      "lore": "Rotting bandages leak deadly poison."
+    },
+    {
+      "id": "guardian",
+      "name": "Iron Guardian",
+      "baseStrength": 21,
+      "strengthVariance": 0,
+      "dropItemId": "halberd",
+      "color": "SKY_BLUE",
+      "art": [
+        "   [H]   ",
+        "  /|_|\\  ",
+        "   | |   "
+      ],
+      "lore": "An animated suit of zweihänder-wielding steel."
+    },
+    {
+      "id": "wraith",
+      "name": "Barrow Wraith",
+      "baseStrength": 31,
+      "strengthVariance": 0,
+      "dropItemId": "runeblade",
+      "color": "PURPLE",
+      "art": [
+        "  .---.  ",
+        " ( o o ) ",
+        "  ~   ~  "
+      ],
+      "lore": "A screaming phantom clad in frost and shadow."
+    },
+    {
+      "id": "warden",
+      "name": "Goblin Warden",
+      "baseStrength": 10,
+      "strengthVariance": 0,
+      "dropItemId": "key",
+      "color": "EMERALD",
+      "art": [
+        "  /\\ /\\  ",
+        " ( o.o ) ",
+        "  /|_|\\  "
+      ]
+    },
+    {
+      "id": "mummy_lord",
+      "name": "Mummy Lord",
+      "baseStrength": 22,
+      "strengthVariance": 0,
+      "dropItemId": "key",
+      "color": "GOLD",
+      "art": [
+        "  ^^^^^  ",
+        " / o o \\ ",
+        " \\_____/ "
+      ],
+      "lore": "Guards the Dungeon Key to Level 3."
+    },
+    {
+      "id": "knight",
+      "name": "Knight Guardian",
+      "baseStrength": 33,
+      "strengthVariance": 0,
+      "dropItemId": "excalibur",
+      "color": "SKY_BLUE",
+      "art": [
+        "  /---\\  ",
+        " | o o | ",
+        "  \\___/  "
+      ],
+      "lore": "Slay him to unearth the holy blade Excalibur!"
+    },
+    {
+      "id": "dragon",
+      "name": "Ashgorath the Dragon",
+      "baseStrength": 37,
+      "strengthVariance": 0,
+      "dropItemId": "crown_jewels",
+      "color": "CRIMSON",
+      "art": [
+        "  /\\___/\\  ",
+        " <  o o  > ",
+        "  \\_^^^_/  "
+      ],
+      "lore": "Three lives. Each strike needs a 2d6 sum of 9+."
+    }
+  ],
+  "dropChances": {
+    "rat": 0.5,
+    "spider": 1.0,
+    "venom_spider": 1.0,
+    "mummy": 1.0,
+    "plague_mummy": 1.0,
+    "guardian": 1.0,
+    "wraith": 1.0,
+    "warden": 1.0,
+    "mummy_lord": 1.0,
+    "knight": 1.0,
+    "dragon": 1.0
+  },
+  "lootTables": {
+    "rat": ["dagger", "short_sword", "silver_ring", "leather_armor"],
+    "spider": ["dagger", "short_sword", "silver_ring", "leather_armor"],
+    "venom_spider": ["dagger", "short_sword", "silver_ring", "leather_armor"],
+    "mummy": ["saber", "leather_armor", "fireball"],
+    "plague_mummy": ["saber", "leather_armor", "fireball"],
+    "guardian": ["war_axe", "halberd"],
+    "wraith": ["runeblade", "halberd"],
+    "dragon": ["crown_jewels"]
+  },
+  "questDrops": {
+    "warden": "key",
+    "mummy_lord": "key",
+    "knight": "excalibur"
+  },
+  "lootHints": {
+    "rat": "Light gear or nothing",
+    "spider": "Light gear",
+    "venom_spider": "Light gear",
+    "mummy": "Good gear",
+    "plague_mummy": "Good gear",
+    "guardian": "Strong gear",
+    "wraith": "Elite gear",
+    "warden": "Dungeon Key",
+    "mummy_lord": "Dungeon Key",
+    "knight": "Excalibur",
+    "dragon": "Crown Jewels"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "victoryEpilogue": "With a final, holy strike of Excalibur, Ashgorath collapses into ashes. Sir Arnost emerges from the catacombs bearing the lost Crown Jewels. The Keep is fallen no more!",
+  "prologue": {
+    "chapter": "PROLOGUE",
+    "title": "THE GATE OF THE FALLEN KEEP",
+    "prompt": "Press [ENTER] to enter the keep...",
+    "paragraphs": [
+      "The Fallen Keep has stood silent for a hundred years, its gates sealed beneath ash and ivy.",
+      "Sir Arnost, last knight of the broken order, rides through the mist with a worn blade and a vow he cannot break.",
+      "Two Dungeon Keys wait behind hidden guardians. On the third level, the holy blade Excalibur lies hidden, and at the bottom of the Dragon's Abyss, Ashgorath guards the lost Crown Jewels.",
+      "Descend. Claim the keys. Draw Excalibur. End the curse of the Fallen Keep."
+    ]
+  },
+  "descents": {
+    "2": {
+      "chapter": "LEVEL 2",
+      "title": "THE SUNKEN CRYPTS",
+      "prompt": "Press [ENTER] to enter the Sunken Crypts...",
+      "paragraphs": [
+        "You unlock the heavy iron grate and descend into the Sunken Crypts. The air grows thick with ancient venom...",
+        "Water drips through the vaulted dark. The Mummy Lord's servants stir, and a hidden guardian carries the next Dungeon Key.",
+        "Find the key. Survive the venom. Descend deeper."
+      ]
+    },
+    "3": {
+      "chapter": "LEVEL 3",
+      "title": "THE DRAGON'S ABYSS",
+      "prompt": "Press [ENTER] to enter the Dragon's Abyss...",
+      "paragraphs": [
+        "Unlocking the vault with the Mummy Lord's Key, you descend into the Dragon's Abyss. Volcanic heat radiates from below...",
+        "The Knight Guardian's blade waits in the dark. Ashgorath's shadow coils around the lost Crown Jewels.",
+        "Claim Excalibur. Slay the dragon. End the curse."
+      ]
+    },
+    "default": {
+      "chapter": "LEVEL",
+      "title": "THE FALLEN KEEP",
+      "prompt": "Press [ENTER] to continue...",
+      "paragraphs": [
+        "You descend deeper into the Fallen Keep."
+      ]
+    }
+  },
+  "arrivalMessages": {
+    "2": "A hidden guardian holds Level 2's Dungeon Key. Venom Spiders and hidden traps guard the way.",
+    "3": "A hidden champion guards Excalibur. Plague Mummies stalk the halls. The Dragon's Lair waits at [3,1].",
+    "default": "The stairwell closes behind you."
+  }
+}

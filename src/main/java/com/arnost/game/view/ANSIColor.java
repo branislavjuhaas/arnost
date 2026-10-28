@@ -12,4 +12,27 @@ public class ANSIColor {
     public static final String PURPLE = "\u001B[38;5;141m";
     public static final String BONE = "\u001B[38;5;252m";
     public static final String LAVA = "\u001B[38;5;208m";
+
+    /**
+     * Resolves a symbolic color name used by the bundled JSON data.
+     * Keeping names in the data files avoids embedding raw escape sequences.
+     */
+    public static String named(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("ANSI color name must not be null.");
+        }
+        return switch (name) {
+            case "GOLD" -> GOLD;
+            case "CRIMSON" -> CRIMSON;
+            case "EMERALD" -> EMERALD;
+            case "SKY_BLUE" -> SKY_BLUE;
+            case "CYAN" -> CYAN;
+            case "SHADOW_GRAY" -> SHADOW_GRAY;
+            case "BRIGHT_WHITE" -> BRIGHT_WHITE;
+            case "PURPLE" -> PURPLE;
+            case "BONE" -> BONE;
+            case "LAVA" -> LAVA;
+            default -> throw new IllegalArgumentException("Unknown ANSI color: " + name);
+        };
+    }
 }

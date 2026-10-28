@@ -1,0 +1,148 @@
+{
+  "lootableIds": [
+    "dagger",
+    "short_sword",
+    "leather_armor",
+    "silver_ring",
+    "saber",
+    "fireball",
+    "war_axe",
+    "halberd"
+  ],
+  "items": [
+    {
+      "id": "dagger",
+      "name": "Iron Dagger",
+      "combatBonus": 1,
+      "color": "BRIGHT_WHITE",
+      "art": [
+        "   /\\    ",
+        "  /  \\   ",
+        "  |__|   "
+      ]
+    },
+    {
+      "id": "short_sword",
+      "name": "Short Sword",
+      "combatBonus": 1,
+      "color": "BRIGHT_WHITE",
+      "art": [
+        "   /|    ",
+        "  / |    ",
+        " /__|    "
+      ]
+    },
+    {
+      "id": "leather_armor",
+      "name": "Leather Armor",
+      "combatBonus": 1,
+      "color": "BONE",
+      "art": [
+        "  ___    ",
+        " /   \\   ",
+        " \\___/   "
+      ]
+    },
+    {
+      "id": "silver_ring",
+      "name": "Silver Ring",
+      "combatBonus": 1,
+      "color": "SKY_BLUE",
+      "art": [
+        "  .-.    ",
+        " (   )   ",
+        "  '-'    "
+      ]
+    },
+    {
+      "id": "saber",
+      "name": "Cavalry Saber",
+      "combatBonus": 2,
+      "color": "EMERALD",
+      "art": [
+        "   __    ",
+        "  / /    ",
+        " /_/     "
+      ]
+    },
+    {
+      "id": "fireball",
+      "name": "Fireball Scroll",
+      "combatBonus": 1,
+      "color": "LAVA",
+      "art": [
+        "  _____  ",
+        " /~~~~~\\ ",
+        " \\_____/ "
+      ]
+    },
+    {
+      "id": "war_axe",
+      "name": "War Axe",
+      "combatBonus": 3,
+      "color": "LAVA",
+      "art": [
+        "  _____  ",
+        " /  _  \\ ",
+        "  |_|    "
+      ]
+    },
+    {
+      "id": "halberd",
+      "name": "Iron Halberd",
+      "combatBonus": 3,
+      "color": "GOLD",
+      "art": [
+        "  /\\     ",
+        " /--\\    ",
+        "  ||     "
+      ]
+    },
+    {
+      "id": "runeblade",
+      "name": "Runeblade",
+      "combatBonus": 4,
+      "color": "PURPLE",
+      "art": [
+        "  * /\\ * ",
+        "   /  \\  ",
+        "   |__|  "
+      ]
+    },
+    {
+      "id": "crown_jewels",
+      "name": "Crown Jewels",
+      "combatBonus": 0,
+      "color": "GOLD",
+      "art": [
+        "  .-. .-. ",
+        "  |_| |_| ",
+        "   \\___/  "
+      ]
+    },
+    {
+      "id": "key",
+      "name": "Dungeon Key",
+      "combatBonus": 0,
+      "color": "GOLD",
+      "questItem": true,
+      "art": [
+        "  .--.   ",
+        "  |__|   ",
+        "  /  \\   "
+      ]
+    },
+    {
+      "id": "excalibur",
+      "name": "Excalibur",
+      "combatBonus": 4,
+      "color": "GOLD",
+      "questItem": true,
+      "art": [
+        "   /\\    ",
+        "  /  \\   ",
+        "  |__|   "
+      ]
+    }
+  ]
+}

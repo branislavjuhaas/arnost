@@ -28,9 +28,6 @@ public final class MapGenerator {
     private static final int[][] LEVEL_ONE_POTIONS = {{2, 5}, {4, 4}};
     private static final int[][] LEVEL_TWO_POTIONS = {{2, 5}, {4, 4}};
     private static final int[][] LEVEL_THREE_POTIONS = {{2, 5}, {4, 4}};
-    private static final int[] LEVEL_ONE_KEY_GUARDIAN = {4, 3};
-    private static final int[] LEVEL_TWO_KEY_GUARDIAN = {4, 3};
-    private static final int[] LEVEL_THREE_EXCALIBUR_GUARDIAN = {4, 2};
 
     private MapGenerator() {
     }
@@ -157,13 +154,15 @@ public final class MapGenerator {
 
         if (level == 1) {
             protectedGrid[0][6] = true;
-            protectedGrid[LEVEL_ONE_KEY_GUARDIAN[1]][LEVEL_ONE_KEY_GUARDIAN[0]] = true;
         } else if (level == 2) {
             protectedGrid[0][0] = true;
-            protectedGrid[LEVEL_TWO_KEY_GUARDIAN[1]][LEVEL_TWO_KEY_GUARDIAN[0]] = true;
         } else {
             protectedGrid[1][3] = true;
-            protectedGrid[LEVEL_THREE_EXCALIBUR_GUARDIAN[1]][LEVEL_THREE_EXCALIBUR_GUARDIAN[0]] = true;
+        }
+
+        for (MonsterCatalog.FixedPlacement placement
+                : MonsterCatalog.fixedPlacementsForLevel(level)) {
+            protectedGrid[placement.y()][placement.x()] = true;
         }
 
         if (level == 2) {
@@ -229,27 +228,10 @@ public final class MapGenerator {
     }
 
     private static void placeGuaranteedMonsters(DungeonMap map, int level, Random rng) {
-        switch (level) {
-            case 1 -> {
-                placeMonster(map, level, 3, 5, "rat", rng);
-                placeMonster(map, level, 3, 4, "spider", rng);
-                placeMonster(map, level, LEVEL_ONE_KEY_GUARDIAN[0], LEVEL_ONE_KEY_GUARDIAN[1],
-                    "warden", rng);
-            }
-            case 2 -> {
-                placeMonster(map, level, 3, 5, "venom_spider", rng);
-                placeMonster(map, level, 3, 4, "mummy", rng);
-                placeMonster(map, level, LEVEL_TWO_KEY_GUARDIAN[0], LEVEL_TWO_KEY_GUARDIAN[1],
-                    "mummy_lord", rng);
-            }
-            case 3 -> {
-                placeMonster(map, level, 3, 5, "plague_mummy", rng);
-                placeMonster(map, level, 3, 4, "mummy", rng);
-                placeMonster(map, level, LEVEL_THREE_EXCALIBUR_GUARDIAN[0],
-                    LEVEL_THREE_EXCALIBUR_GUARDIAN[1], "knight", rng);
-            }
-            default -> {
-            }
+        for (MonsterCatalog.FixedPlacement placement
+                : MonsterCatalog.fixedPlacementsForLevel(level)) {
+            placeMonster(map, level, placement.x(), placement.y(),
+                placement.monsterId(), rng);
         }
     }
 

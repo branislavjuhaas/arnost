@@ -36,16 +36,6 @@ public class TUIRenderer {
     private static final String STATUS_BG = "\u001B[100m";
     private static final String BLACK_TEXT = "\u001B[30m";
 
-    private static final Map<String, String> MONSTER_LORE = Map.ofEntries(
-        Map.entry("venom_spider", "Chitinous fangs drip with green bile."),
-        Map.entry("mummy_lord", "Guards the Dungeon Key to Level 3."),
-        Map.entry("plague_mummy", "Rotting bandages leak deadly poison."),
-        Map.entry("guardian", "An animated suit of zweihänder-wielding steel."),
-        Map.entry("wraith", "A screaming phantom clad in frost and shadow."),
-        Map.entry("knight", "Slay him to unearth the holy blade Excalibur!"),
-        Map.entry("dragon", "Three lives. Each strike needs a 2d6 sum of 9+.")
-    );
-
     private static final long ROLL_SETTLE_HOLD_MS = 1800;
     private static final long ROLL_RESULT_HOLD_MS = 2600;
 
@@ -625,7 +615,7 @@ public class TUIRenderer {
             "  " + vitals + venom;
         lines.add(centerVisible(nameAndStrength, PANEL_CONTENT_WIDTH));
 
-        String lore = MONSTER_LORE.get(monster.id());
+        String lore = MonsterCatalog.loreOf(monster.id());
         if (lore != null) {
             for (String loreLine : loreLines(lore)) {
                 lines.add(centerVisible(ANSIColor.BONE + loreLine + ANSIColor.RESET,

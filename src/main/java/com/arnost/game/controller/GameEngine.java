@@ -9,6 +9,7 @@ import com.arnost.game.model.monster.MonsterCatalog;
 import com.arnost.game.model.monster.MonsterType;
 import com.arnost.game.model.state.GameSave;
 import com.arnost.game.model.state.GameState;
+import com.arnost.game.model.story.StoryCatalog;
 import com.arnost.game.view.TUIRenderer;
 
 import java.io.IOException;
@@ -40,10 +41,6 @@ public class GameEngine {
         "The Exit Staircase is locked. A hidden guardian still holds the Dungeon Key.";
     private static final String DRAGON_WEAPON_MESSAGE =
         "The dragon's scales turn your blade. Only Excalibur can slay it.";
-    private static final String VICTORY_EPILOGUE =
-        "With a final, holy strike of Excalibur, Ashgorath collapses into ashes. "
-            + "Sir Arnost emerges from the catacombs bearing the lost Crown Jewels. "
-            + "The Keep is fallen no more!";
 
     private Player player;
     private GameState gameState;
@@ -166,7 +163,7 @@ public class GameEngine {
 
             if (gameState.isGameWon()) {
                 deleteSave();
-                renderer.renderVictoryScreen(player, VICTORY_EPILOGUE);
+                renderer.renderVictoryScreen(player, StoryCatalog.victoryEpilogue());
                 return;
             }
 
@@ -187,15 +184,16 @@ public class GameEngine {
     }
 
     private void renderPrologue() {
-        renderer.renderStoryScreen(
-            "PROLOGUE",
-            "THE GATE OF THE FALLEN KEEP",
-            "Press [ENTER] to enter the keep...",
-            "The Fallen Keep has stood silent for a hundred years, its gates sealed beneath ash and ivy.",
-            "Sir Arnost, last knight of the broken order, rides through the mist with a worn blade and a vow he cannot break.",
-            "Two Dungeon Keys wait behind hidden guardians. On the third level, the holy blade Excalibur lies hidden, and at the bottom of the Dragon's Abyss, Ashgorath guards the lost Crown Jewels.",
-            "Descend. Claim the keys. Draw Excalibur. End the curse of the Fallen Keep.");
+        renderStory(StoryCatalog.prologue());
         waitForStoryContinue();
+    }
+
+    private void renderStory(StoryCatalog.Screen story) {
+        renderer.renderStoryScreen(
+            story.chapter(),
+            story.title(),
+            story.prompt(),
+            story.paragraphs().toArray(String[]::new));
     }
 
     private void waitForStoryContinue() {
@@ -381,38 +379,12 @@ public class GameEngine {
     }
 
     private void renderDescentCutscene(int level) {
-        switch (level) {
-            case 2 -> renderer.renderStoryScreen(
-                "LEVEL 2",
-                "THE SUNKEN CRYPTS",
-                "Press [ENTER] to enter the Sunken Crypts...",
-                "You unlock the heavy iron grate and descend into the Sunken Crypts. The air grows thick with ancient venom...",
-                "Water drips through the vaulted dark. The Mummy Lord's servants stir, and a hidden guardian carries the next Dungeon Key.",
-                "Find the key. Survive the venom. Descend deeper.");
-            case 3 -> renderer.renderStoryScreen(
-                "LEVEL 3",
-                "THE DRAGON'S ABYSS",
-                "Press [ENTER] to enter the Dragon's Abyss...",
-                "Unlocking the vault with the Mummy Lord's Key, you descend into the Dragon's Abyss. Volcanic heat radiates from below...",
-                "The Knight Guardian's blade waits in the dark. Ashgorath's shadow coils around the lost Crown Jewels.",
-                "Claim Excalibur. Slay the dragon. End the curse.");
-            default -> renderer.renderStoryScreen(
-                "LEVEL " + level,
-                "THE FALLEN KEEP",
-                "Press [ENTER] to continue...",
-                "You descend deeper into the Fallen Keep.");
-        }
+        renderStory(StoryCatalog.descent(level));
         waitForStoryContinue();
     }
 
     private String levelArrivalMessage(int level) {
-        return switch (level) {
-            case 2 -> "A hidden guardian holds Level 2's Dungeon Key. "
-                + "Venom Spiders and hidden traps guard the way.";
-            case 3 -> "A hidden champion guards Excalibur. Plague Mummies stalk the halls. "
-                + "The Dragon's Lair waits at [3,1].";
-            default -> "The stairwell closes behind you.";
-        };
+        return StoryCatalog.arrivalMessage(level);
     }
 
     private void activateDragonLairIfEligible() {

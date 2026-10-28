@@ -1,161 +1,151 @@
 package com.arnost.game.model.monster;
 
+import com.arnost.game.data.Json;
 import com.arnost.game.model.item.ItemCatalog;
 import com.arnost.game.view.ANSIColor;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+/**
+ * Monster definitions and encounter data loaded from
+ * {@code data/monsters.json}.
+ *
+ * <p>The JSON file is the source of truth for monster stats, art, lore,
+ * level-specific strength overrides, spawn pools, fixed placements, loot
+ * tables, quest drops, and dragon constants.</p>
+ */
 public final class MonsterCatalog {
+    private static final Map<String, Object> DATA =
+        Json.readObject("/data/monsters.json");
+
     // Ashgorath ignores the normal strength comparison: he has three lives,
     // and each successful strike requires a 2d6 sum of 9 or more.
-    public static final int DRAGON_LIVES = 3;
-    public static final int DRAGON_MIN_ROLL = 9;
+    public static final int DRAGON_LIVES = Json.integer(DATA, "dragonLives");
+    public static final int DRAGON_MIN_ROLL = Json.integer(DATA, "dragonMinRoll");
 
-    private static final List<String> SPAWNABLE_IDS =
-        List.of("rat", "spider", "venom_spider", "mummy", "plague_mummy",
-            "guardian", "wraith");
-    private static final List<String> LEVEL_ONE_SPAWNS = List.of("rat", "spider");
-    private static final List<String> LEVEL_TWO_SPAWNS =
-        List.of("spider", "venom_spider", "mummy", "guardian");
-    private static final List<String> LEVEL_THREE_SPAWNS =
-        List.of("mummy", "plague_mummy", "guardian", "wraith");
+    private static final int FALLBACK_BASE_STRENGTH =
+        Json.integer(DATA, "fallbackBaseStrength");
+    private static final int VENOM_DAMAGE = Json.integer(DATA, "venomDamage");
 
-    private static final List<String> LEVEL_ONE_IDS =
-        List.of("rat", "spider", "warden");
-    private static final List<String> LEVEL_TWO_IDS =
-        List.of("spider", "venom_spider", "mummy", "guardian", "mummy_lord");
-    private static final List<String> LEVEL_THREE_IDS =
-        List.of("mummy", "plague_mummy", "guardian", "wraith", "knight");
+    private static final List<String> SPAWNABLE_IDS = List.copyOf(
+        Json.stringList(DATA.get("spawnableIds"), "monsters.spawnableIds"));
+    private static final Set<String> VENOMOUS_IDS = Collections.unmodifiableSet(
+        new LinkedHashSet<>(Json.stringList(DATA.get("venomousIds"),
+            "monsters.venomousIds")));
 
-    private static final Set<String> VENOMOUS_IDS =
-        Set.of("venom_spider", "plague_mummy");
+    private static final Map<String, MonsterType> MONSTERS = loadMonsters();
+    private static final Map<Integer, List<String>> LEVEL_IDS = loadLevelLists("levelIds");
+    private static final Map<Integer, List<String>> LEVEL_SPAWNS =
+        loadLevelLists("randomSpawnIds");
+    private static final Map<Integer, Map<String, Integer>> LEVEL_STRENGTHS =
+        loadLevelStrengths();
+    private static final Map<Integer, List<FixedPlacement>> FIXED_PLACEMENTS =
+        loadFixedPlacements();
 
-    private static final Map<String, MonsterType> MONSTERS = Map.ofEntries(
-        Map.entry("rat", new MonsterType(
-            "rat", "Giant Rat", 6, 0, "dagger", ANSIColor.GOLD,
-            List.of(
-                "  /\\_/\\  ",
-                " ( o.o ) ",
-                "  > ^ <  "
-            )
-        )),
-        Map.entry("spider", new MonsterType(
-            "spider", "Cave Spider", 8, 0, "short_sword", ANSIColor.PURPLE,
-            List.of(
-                "  /\\ /\\  ",
-                " <  o  > ",
-                "  /   \\  "
-            )
-        )),
-        Map.entry("venom_spider", new MonsterType(
-            "venom_spider", "Venom Spider", 15, 0, "short_sword", ANSIColor.EMERALD,
-            List.of(
-                "  /\\ /\\  ",
-                " <  V  > ",
-                "  /   \\  "
-            )
-        )),
-        Map.entry("mummy", new MonsterType(
-            "mummy", "Restless Mummy", 18, 0, "saber", ANSIColor.BONE,
-            List.of(
-                "  _____  ",
-                " / o o \\ ",
-                " \\_____/ "
-            )
-        )),
-        Map.entry("plague_mummy", new MonsterType(
-            "plague_mummy", "Plague Mummy", 25, 0, "saber", ANSIColor.LAVA,
-            List.of(
-                "  _____  ",
-                " / x x \\ ",
-                " \\__V__/ "
-            )
-        )),
-        Map.entry("guardian", new MonsterType(
-            "guardian", "Iron Guardian", 21, 0, "halberd", ANSIColor.SKY_BLUE,
-            List.of(
-                "   [H]   ",
-                "  /|_|\\  ",
-                "   | |   "
-            )
-        )),
-        Map.entry("wraith", new MonsterType(
-            "wraith", "Barrow Wraith", 31, 0, "runeblade", ANSIColor.PURPLE,
-            List.of(
-                "  .---.  ",
-                " ( o o ) ",
-                "  ~   ~  "
-            )
-        )),
-        Map.entry("warden", new MonsterType(
-            "warden", "Goblin Warden", 10, 0, "key", ANSIColor.EMERALD,
-            List.of(
-                "  /\\ /\\  ",
-                " ( o.o ) ",
-                "  /|_|\\  "
-            )
-        )),
-        Map.entry("mummy_lord", new MonsterType(
-            "mummy_lord", "Mummy Lord", 22, 0, "key", ANSIColor.GOLD,
-            List.of(
-                "  ^^^^^  ",
-                " / o o \\ ",
-                " \\_____/ "
-            )
-        )),
-        Map.entry("knight", new MonsterType(
-            "knight", "Knight Guardian", 33, 0, "excalibur", ANSIColor.SKY_BLUE,
-            List.of(
-                "  /---\\  ",
-                " | o o | ",
-                "  \\___/  "
-            )
-        )),
-        Map.entry("dragon", new MonsterType(
-            "dragon", "Ashgorath the Dragon", 37, 0, "crown_jewels", ANSIColor.CRIMSON,
-            List.of(
-                "  /\\___/\\  ",
-                " <  o o  > ",
-                "  \\_^^^_/  "
-            )
-        ))
-    );
-
-    private static final Map<String, Double> DROP_CHANCES = Map.ofEntries(
-        Map.entry("rat", 0.5),
-        Map.entry("spider", 1.0),
-        Map.entry("venom_spider", 1.0),
-        Map.entry("mummy", 1.0),
-        Map.entry("plague_mummy", 1.0),
-        Map.entry("guardian", 1.0),
-        Map.entry("wraith", 1.0),
-        Map.entry("warden", 1.0),
-        Map.entry("mummy_lord", 1.0),
-        Map.entry("knight", 1.0),
-        Map.entry("dragon", 1.0)
-    );
-
-    private static final Map<String, List<String>> LOOT_TABLES = Map.ofEntries(
-        Map.entry("rat", List.of("dagger", "short_sword", "silver_ring", "leather_armor")),
-        Map.entry("spider", List.of("dagger", "short_sword", "silver_ring", "leather_armor")),
-        Map.entry("venom_spider", List.of("dagger", "short_sword", "silver_ring", "leather_armor")),
-        Map.entry("mummy", List.of("saber", "leather_armor", "fireball")),
-        Map.entry("plague_mummy", List.of("saber", "leather_armor", "fireball")),
-        Map.entry("guardian", List.of("war_axe", "halberd")),
-        Map.entry("wraith", List.of("runeblade", "halberd")),
-        Map.entry("dragon", List.of("crown_jewels"))
-    );
-
-    private static final Map<String, String> QUEST_DROPS = Map.of(
-        "warden", "key",
-        "mummy_lord", "key",
-        "knight", "excalibur"
-    );
+    private static final Map<String, Double> DROP_CHANCES = Collections.unmodifiableMap(
+        Json.doubleMap(DATA.get("dropChances"), "monsters.dropChances"));
+    private static final Map<String, List<String>> LOOT_TABLES =
+        Collections.unmodifiableMap(Json.stringListMap(DATA.get("lootTables"),
+            "monsters.lootTables"));
+    private static final Map<String, String> QUEST_DROPS = Collections.unmodifiableMap(
+        Json.stringMap(DATA.get("questDrops"), "monsters.questDrops"));
+    private static final Map<String, String> LOOT_HINTS = Collections.unmodifiableMap(
+        Json.stringMap(DATA.get("lootHints"), "monsters.lootHints"));
 
     private MonsterCatalog() {
+    }
+
+    public record FixedPlacement(int x, int y, String monsterId) {
+    }
+
+    private static Map<String, MonsterType> loadMonsters() {
+        List<Map<String, Object>> definitions =
+            Json.objectList(DATA.get("monsters"), "monsters.monsters");
+        Map<String, MonsterType> monsters = new LinkedHashMap<>();
+
+        for (Map<String, Object> definition : definitions) {
+            String id = Json.string(definition, "id");
+            MonsterType monster = new MonsterType(
+                id,
+                Json.string(definition, "name"),
+                Json.integer(definition, "baseStrength"),
+                Json.integer(definition, "strengthVariance"),
+                Json.string(definition, "dropItemId"),
+                ANSIColor.named(Json.string(definition, "color")),
+                List.copyOf(Json.stringList(definition.get("art"),
+                    "monsters." + id + ".art")),
+                Json.optionalString(definition, "lore")
+            );
+            if (monsters.putIfAbsent(id, monster) != null) {
+                throw new IllegalStateException("Duplicate monster id in monsters.json: " + id);
+            }
+        }
+        return Collections.unmodifiableMap(monsters);
+    }
+
+    private static Map<Integer, List<String>> loadLevelLists(String key) {
+        Map<String, Object> raw = Json.object(DATA.get(key), "monsters." + key);
+        Map<Integer, List<String>> result = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> entry : raw.entrySet()) {
+            int level = parseLevel(entry.getKey(), key);
+            result.put(level, List.copyOf(Json.stringList(entry.getValue(),
+                "monsters." + key + "." + entry.getKey())));
+        }
+        return Collections.unmodifiableMap(result);
+    }
+
+    private static Map<Integer, Map<String, Integer>> loadLevelStrengths() {
+        Map<String, Object> raw = Json.object(DATA.get("levelStrengths"),
+            "monsters.levelStrengths");
+        Map<Integer, Map<String, Integer>> result = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> entry : raw.entrySet()) {
+            int level = parseLevel(entry.getKey(), "levelStrengths");
+            result.put(level, Collections.unmodifiableMap(Json.integerMap(
+                entry.getValue(), "monsters.levelStrengths." + entry.getKey())));
+        }
+        return Collections.unmodifiableMap(result);
+    }
+
+    private static Map<Integer, List<FixedPlacement>> loadFixedPlacements() {
+        Map<String, Object> raw = Json.object(DATA.get("fixedPlacements"),
+            "monsters.fixedPlacements");
+        Map<Integer, List<FixedPlacement>> result = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> entry : raw.entrySet()) {
+            int level = parseLevel(entry.getKey(), "fixedPlacements");
+            List<Map<String, Object>> placements = Json.objectList(
+                entry.getValue(), "monsters.fixedPlacements." + entry.getKey());
+            List<FixedPlacement> levelPlacements = new ArrayList<>(placements.size());
+            for (Map<String, Object> placement : placements) {
+                levelPlacements.add(new FixedPlacement(
+                    Json.integer(placement, "x"),
+                    Json.integer(placement, "y"),
+                    Json.string(placement, "monsterId")
+                ));
+            }
+            result.put(level, List.copyOf(levelPlacements));
+        }
+        return Collections.unmodifiableMap(result);
+    }
+
+    private static int parseLevel(String value, String context) {
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            throw new IllegalStateException("Invalid level key in " + context + ": " + value, e);
+        }
+    }
+
+    private static List<String> idsForLevel(Map<Integer, List<String>> source,
+                                            int level, List<String> fallback) {
+        List<String> ids = source.get(level);
+        return ids == null ? fallback : ids;
     }
 
     public static MonsterType get(String id) {
@@ -178,26 +168,20 @@ public final class MonsterCatalog {
     }
 
     public static List<String> spawnableIdsForLevel(int level) {
-        return switch (level) {
-            case 1 -> LEVEL_ONE_IDS;
-            case 2 -> LEVEL_TWO_IDS;
-            case 3 -> LEVEL_THREE_IDS;
-            default -> SPAWNABLE_IDS;
-        };
+        return idsForLevel(LEVEL_IDS, level, SPAWNABLE_IDS);
     }
 
     public static List<String> randomSpawnIdsForLevel(int level) {
-        return switch (level) {
-            case 1 -> LEVEL_ONE_SPAWNS;
-            case 2 -> LEVEL_TWO_SPAWNS;
-            case 3 -> LEVEL_THREE_SPAWNS;
-            default -> SPAWNABLE_IDS;
-        };
+        return idsForLevel(LEVEL_SPAWNS, level, SPAWNABLE_IDS);
+    }
+
+    public static List<FixedPlacement> fixedPlacementsForLevel(int level) {
+        return FIXED_PLACEMENTS.getOrDefault(level, List.of());
     }
 
     public static int baseStrengthOf(String id) {
         MonsterType monster = get(id);
-        return monster == null ? 5 : monster.baseStrength();
+        return monster == null ? FALLBACK_BASE_STRENGTH : monster.baseStrength();
     }
 
     /**
@@ -206,32 +190,14 @@ public final class MonsterCatalog {
      * from the player's own combat bonus is applied.
      */
     public static int strengthForLevel(String id, int level) {
-        return switch (level) {
-            case 1 -> switch (id) {
-                case "rat" -> 6;
-                case "spider" -> 8;
-                case "warden" -> 10;
-                default -> baseStrengthOf(id);
-            };
-            case 2 -> switch (id) {
-                case "spider" -> 13;
-                case "venom_spider" -> 15;
-                case "mummy" -> 18;
-                case "guardian" -> 21;
-                case "mummy_lord" -> 22;
-                default -> baseStrengthOf(id);
-            };
-            case 3 -> switch (id) {
-                case "mummy" -> 23;
-                case "plague_mummy" -> 25;
-                case "guardian" -> 27;
-                case "wraith" -> 31;
-                case "knight" -> 33;
-                case "dragon" -> 37;
-                default -> baseStrengthOf(id);
-            };
-            default -> baseStrengthOf(id);
-        };
+        Map<String, Integer> strengths = LEVEL_STRENGTHS.get(level);
+        if (strengths != null) {
+            Integer strength = strengths.get(id);
+            if (strength != null) {
+                return strength;
+            }
+        }
+        return baseStrengthOf(id);
     }
 
     /**
@@ -299,17 +265,13 @@ public final class MonsterCatalog {
         if (monsterId == null) {
             return "Unknown";
         }
-        return switch (monsterId) {
-            case "rat" -> "Light gear or nothing";
-            case "spider", "venom_spider" -> "Light gear";
-            case "mummy", "plague_mummy" -> "Good gear";
-            case "guardian" -> "Strong gear";
-            case "wraith" -> "Elite gear";
-            case "warden", "mummy_lord" -> "Dungeon Key";
-            case "knight" -> "Excalibur";
-            case "dragon" -> "Crown Jewels";
-            default -> get(monsterId) == null ? "Unknown" : "Gear";
-        };
+        String hint = LOOT_HINTS.get(monsterId);
+        return hint != null ? hint : get(monsterId) == null ? "Unknown" : "Gear";
+    }
+
+    public static String loreOf(String monsterId) {
+        MonsterType monster = get(monsterId);
+        return monster == null ? null : monster.lore();
     }
 
     public static boolean isQuestGuardian(String monsterId) {
@@ -321,6 +283,6 @@ public final class MonsterCatalog {
     }
 
     public static int poisonDamageOf(String monsterId) {
-        return isVenomous(monsterId) ? 1 : 0;
+        return isVenomous(monsterId) ? VENOM_DAMAGE : 0;
     }
 }

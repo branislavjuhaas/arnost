@@ -16,6 +16,7 @@ Ashgorath in his lair.
 - [Overview](#overview)
 - [Story](#story)
 - [Features](#features)
+- [Game data](#game-data)
 - [Requirements](#requirements)
 - [Compile and package](#compile-and-package)
 - [Run the game](#run-the-game)
@@ -76,8 +77,27 @@ additional story cutscenes, and a winning run ends with an epilogue.
 - Automatic save/load with optional manual save and title-screen load.
 - Story prologue, level-transition cutscenes, and a victory epilogue.
 - A colored, split-pane 80-column ANSI interface with ASCII art.
+- Data-driven items, monsters, and story content stored in bundled JSON files.
 - Automated tests covering combat, map generation, rendering, saves, story
   flow, and a complete winning playthrough.
+
+---
+
+## Game data
+
+The editable content lives in three JSON resources:
+
+- `src/main/resources/data/items.json` - item names, bonuses, colors, art,
+  lootable order, and quest-item flags;
+- `src/main/resources/data/monsters.json` - monster stats, art, lore, level
+  strengths, spawn pools, fixed placements, loot tables, and dragon rules;
+- `src/main/resources/data/story.json` - prologue, level-transition
+  cutscenes, arrival messages, and the victory epilogue.
+
+The files are copied into the jar by Maven and loaded once at startup by the
+small built-in `Json` reader. There is no external JSON dependency, so the
+game still runs from the thin executable jar. Edit the JSON, then rebuild and
+rerun the tests; the files are the source of truth for the content they hold.
 
 ---
 
@@ -429,16 +449,21 @@ arnost/
 │   │   │   │   ├── GameEngine.java
 │   │   │   │   ├── MapGenerator.java
 │   │   │   │   └── SaveManager.java
+│   │   │   ├── data/Json.java
 │   │   │   ├── model/
 │   │   │   │   ├── entity/Player.java
 │   │   │   │   ├── item/
 │   │   │   │   ├── map/
 │   │   │   │   ├── monster/
-│   │   │   │   └── state/
+│   │   │   │   ├── state/
+│   │   │   │   └── story/StoryCatalog.java
 │   │   │   └── view/
 │   │   │       ├── ANSIColor.java
 │   │   │       └── TUIRenderer.java
-│   │   └── resources/data/monsters.json
+│   │   └── resources/data/
+│   │       ├── items.json
+│   │       ├── monsters.json
+│   │       └── story.json
 │   └── test/java/com/arnost/game/
 │       ├── DefeatAndRestartTest.java
 │       ├── FullGameplaySimulationTest.java
@@ -453,10 +478,12 @@ arnost/
 ```
 
 The main packages separate the game loop and rules (`controller`), the game
-data (`model`), and terminal presentation (`view`). `GameEngine` owns the
-command loop and story flow; `TUIRenderer` owns the 80-column display;
-`MapGenerator` builds each level and guarantees a reachable route; and
-`SaveManager` handles the serialized save file.
+data (`model`), the bundled JSON loader and resources (`data`), and terminal
+presentation (`view`). `GameEngine` owns the command loop and story flow;
+`StoryCatalog` supplies narrative screens; `ItemCatalog` and `MonsterCatalog`
+load item and enemy content from JSON; `TUIRenderer` owns the 80-column
+display; `MapGenerator` builds each level and guarantees a reachable route;
+and `SaveManager` handles the serialized save file.
 
 ---
 

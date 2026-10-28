@@ -10,7 +10,8 @@ public record MonsterType(
     int strengthVariance,
     String dropItemId,
     String color,
-    List<String> art
+    List<String> art,
+    String lore
 ) {
     public int minStrength() {
         return baseStrength - strengthVariance;
